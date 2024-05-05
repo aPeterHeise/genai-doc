@@ -15,6 +15,10 @@ from datetime import (
     date,
     timedelta,
 )
+import whisper
+
+
+
 # configure logging
 logging.basicConfig(level=logging.INFO)
 # attach a Cloud Logging handler to the root logger
@@ -36,7 +40,8 @@ def load_models():
     """
     text_model_pro = GenerativeModel("gemini-1.0-pro")
     multimodal_model_pro = GenerativeModel("gemini-1.0-pro-vision")
-    return text_model_pro, multimodal_model_pro
+    whisper_model = whisper.load_model("base")
+    return text_model_pro, multimodal_model_pro, whisper_model
 
 
 def get_gemini_pro_text_response(
@@ -87,7 +92,7 @@ def get_gemini_pro_vision_response(
     return "".join(final_response)
 
 st.header("Gemini 1.0 Pro Vision - AI Doctor", divider="gray")
-text_model_pro, multimodal_model_pro = load_models()
+text_model_pro, multimodal_model_pro, whisper_model = load_models()
 
 
 st.write("Audio to Arztbrief translator")
@@ -109,7 +114,7 @@ if audio_bytes:
     with open("audio.wav", "wb") as binary_file:
         binary_file.write(audio_bytes)
 
-    audio_file = Part.from_uri("audio.wav", mime_type="audio/wav")
+    audio_file = Part.from_data(audio_bytes, mime_type="audio/wav")
 
 
 cuisine = st.selectbox(

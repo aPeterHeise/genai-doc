@@ -1,4 +1,5 @@
 streamlit
 audio-recorder-streamlit
+openai-whisper
 google-cloud-aiplatform
 google-cloud-logging
