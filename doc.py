@@ -69,7 +69,16 @@ text_model_pro = load_models()
 st.write("Audio to Arztbrief translator")
 st.subheader("AI Doc")
 
-audio_bytes = audio_recorder()
+
+st.text('Patientenaufnahme')
+st.text('Bitte erwähnen: Name, Aufname des Patienten, Diagnosen, Behandlung')
+audio_bytes = audio_recorder(
+    text="",
+    recording_color="#e8b62c",
+    neutral_color="#6aa36f",
+    icon_name="user",
+    icon_size="6x",
+)
 if audio_bytes:
     st.audio(audio_bytes, format="audio/wav")
 
@@ -80,13 +89,6 @@ cuisine = st.selectbox(
     placeholder="Select your desired cuisine."
 )
 
-dietary_preference = st.selectbox(
-    "Do you have any dietary preferences?",
-    ("Diabetese", "Glueten free", "Halal", "Keto", "Kosher", "Lactose Intolerance", "Paleo", "Vegan", "Vegetarian", "None"),
-    index=None,
-    placeholder="Select your desired dietary preference."
-)
-
 allergy = st.text_input(
     "Enter your food allergy:  \n\n", key="allergy", value="peanuts"
 )
@@ -94,18 +96,6 @@ allergy = st.text_input(
 ingredient_1 = st.text_input(
     "Enter your first ingredient:  \n\n", key="ingredient_1", value="ahi tuna"
 )
-
-ingredient_2 = st.text_input(
-    "Enter your second ingredient:  \n\n", key="ingredient_2", value="chicken breast"
-)
-
-ingredient_3 = st.text_input(
-    "Enter your third ingredient:  \n\n", key="ingredient_3", value="tofu"
-)
-
-# Task 2.5
-# Complete Streamlit framework code for the user interface, add the wine preference radio button to the interface.
-# https://docs.streamlit.io/library/api-reference/widgets/st.radio
 
 
 max_output_tokens = 2048
