@@ -28,8 +28,15 @@ vertexai.init(project=PROJECT_ID, location=LOCATION)
 
 @st.cache_resource
 def load_models():
-    text_model_pro = GenerativeModel("gemini-pro")
-    return text_model_pro
+    """
+    Load the generative models for text and multimodal generation.
+
+    Returns:
+        Tuple: A tuple containing the text model and multimodal model.
+    """
+    text_model_pro = GenerativeModel("gemini-1.0-pro")
+    multimodal_model_pro = GenerativeModel("gemini-1.0-pro-vision")
+    return text_model_pro, multimodal_model_pro
 
 
 def get_gemini_pro_text_response(
@@ -63,8 +70,25 @@ def get_gemini_pro_text_response(
             continue
     return " ".join(final_response)
 
-st.header("Vertex AI Gemini - AI Doctor", divider="gray")
-text_model_pro = load_models()
+
+def get_gemini_pro_vision_response(
+    model, prompt_list, generation_config={}, stream: bool = True
+):
+    generation_config = {"temperature": 0.1, "max_output_tokens": 2048}
+    responses = model.generate_content(
+        prompt_list, generation_config=generation_config, stream=stream
+    )
+    final_response = []
+    for response in responses:
+        try:
+            final_response.append(response.text)
+        except IndexError:
+            pass
+    return "".join(final_response)
+
+st.header("Gemini 1.0 Pro Vision - Multimodal model - AI Doctor", divider="gray")
+text_model_pro, multimodal_model_pro = load_models()
+
 
 st.write("Audio to Arztbrief translator")
 st.subheader("AI Doc")
@@ -80,7 +104,7 @@ audio_bytes = audio_recorder(
     icon_size="6x",
 )
 if audio_bytes:
-    st.audio(audio_bytes, format="audio/wav")
+    st.audio(audio_bytes, format="audio/mpeg")
 
 cuisine = st.selectbox(
     "What cuisine do you desire?",
@@ -100,9 +124,15 @@ ingredient_1 = st.text_input(
 
 max_output_tokens = 2048
 
-# Task 2.6
-# Modify this prompt with the custom chef prompt.
-prompt = f"""Why is the sky blue?"""
+audio_file = Part.from_data(audio_bytes, mime_type="audio/mpeg")
+
+prompt = """
+Describe what is happening in the audio file and answer the following questions: \n
+            - What is the name of the person we talk about? \n
+            - When was the patient first submitted? \n
+            - What was the medical diagnose on the patients?
+            - Which steps were taken?
+"""
 
 config = {
     "temperature": 0.8,
@@ -117,11 +147,11 @@ if generate_t2t and prompt:
         with first_tab1:
             response = get_gemini_pro_text_response(
                 text_model_pro,
-                prompt,
+                [prompt, audio_file],
                 generation_config=config,
             )
             if response:
-                st.write("Your recipes:")
+                st.write("Your doctor's letter:")
                 st.write(response)
                 logging.info(response)
         with first_tab2:
