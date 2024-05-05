@@ -86,7 +86,7 @@ def get_gemini_pro_vision_response(
             pass
     return "".join(final_response)
 
-st.header("Gemini 1.0 Pro Vision - Multimodal model - AI Doctor", divider="gray")
+st.header("Gemini 1.0 Pro Vision - AI Doctor", divider="gray")
 text_model_pro, multimodal_model_pro = load_models()
 
 
@@ -95,7 +95,7 @@ st.subheader("AI Doc")
 
 
 st.text('Patientenaufnahme')
-st.text('Bitte erwähnen: Name, Aufname des Patienten, Diagnosen, Behandlung')
+st.text('Bitte erwähnen: Vorname, Name, Geburtsdatum, Aufnamedatum des Patienten, Diagnosen, Behandlung')
 audio_bytes = audio_recorder(
     text="",
     recording_color="#e8b62c",
@@ -104,34 +104,37 @@ audio_bytes = audio_recorder(
     icon_size="6x",
 )
 if audio_bytes:
-    st.audio(audio_bytes, format="audio/mpeg")
+    st.audio(audio_bytes, format="audio/wav")
 
-#cuisine = st.selectbox(
-#    "What cuisine do you desire?",
-#    ("American", "Chinese", "French", "Indian", "Italian", "Japanese", "Mexican", "Turkish"),
-#    index=None,
-#    placeholder="Select your desired cuisine."
-#)
-#
-#allergy = st.text_input(
-#    "Enter your food allergy:  \n\n", key="allergy", value="peanuts"
-#)
-#
-#ingredient_1 = st.text_input(
-#    "Enter your first ingredient:  \n\n", key="ingredient_1", value="ahi tuna"
-#)
+    with open("audio.wav", "wb") as binary_file:
+        binary_file.write(audio_bytes)
 
+    audio_file = Part.from_uri("audio.wav", mime_type="audio/wav")
+
+
+cuisine = st.selectbox(
+    "What field of medicine are you referring to?",
+    ("Internal", "Family", "Pediatrics", "Dermatology"),
+    index=None,
+    placeholder="Select your desired discipline."
+)
 
 max_output_tokens = 2048
 
-audio_file = Part.from_data(audio_bytes, mime_type="audio/mpeg")
-
 prompt = """
-Describe what is happening in the audio file and answer the following questions: \n
-            - What is the name of the person we talk about? \n
-            - When was the patient first submitted? \n
-            - What was the medical diagnose on the patients?
-            - Which steps were taken?
+Only answer with information in the attached audio file. Transcribe the audio file, then answer the following questions: \n
+        - What is the name of the person? \n
+        - What is the date of birth (this is the first date mentioned)? \n
+        - When was the patient first submitted (this is the second date mentioned)? \n
+        - What was the medical diagnose on the patients?
+        - Which steps were taken?
+
+Please give additional information on the audio file:
+        - how long is it?
+        - what language is it in?
+        - how is the audio quality?
+
+If there is no audio file, please say so.
 """
 
 config = {
@@ -139,14 +142,14 @@ config = {
     "max_output_tokens": 2048,
 }
 
-generate_t2t = st.button("Brief schreiben.", key="generate_t2t")
+generate_t2t = st.button("Generate doctor's letter...", key="generate_t2t")
 if generate_t2t and prompt:
     with st.spinner("Generating your doctor's letter using Gemini..."):
         first_tab1, first_tab2 = st.tabs(["Result", "Prompt"])
         with first_tab1:
-            response = get_gemini_pro_text_response(
-                text_model_pro,
-                [prompt, audio_file],
+            response = get_gemini_pro_vision_response(
+                multimodal_model_pro,
+                [audio_file, prompt],
                 generation_config=config,
             )
             if response:
