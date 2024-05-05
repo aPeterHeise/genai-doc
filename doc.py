@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+from audio_recorder_streamlit import audio_recorder
 import logging
 from google.cloud import logging as cloud_logging
 import vertexai
@@ -67,6 +68,10 @@ text_model_pro = load_models()
 
 st.write("Audio to Arztbrief translator")
 st.subheader("AI Doc")
+
+audio_bytes = audio_recorder()
+if audio_bytes:
+    st.audio(audio_bytes, format="audio/wav")
 
 cuisine = st.selectbox(
     "What cuisine do you desire?",
