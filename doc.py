@@ -106,20 +106,20 @@ audio_bytes = audio_recorder(
 if audio_bytes:
     st.audio(audio_bytes, format="audio/mpeg")
 
-cuisine = st.selectbox(
-    "What cuisine do you desire?",
-    ("American", "Chinese", "French", "Indian", "Italian", "Japanese", "Mexican", "Turkish"),
-    index=None,
-    placeholder="Select your desired cuisine."
-)
-
-allergy = st.text_input(
-    "Enter your food allergy:  \n\n", key="allergy", value="peanuts"
-)
-
-ingredient_1 = st.text_input(
-    "Enter your first ingredient:  \n\n", key="ingredient_1", value="ahi tuna"
-)
+#cuisine = st.selectbox(
+#    "What cuisine do you desire?",
+#    ("American", "Chinese", "French", "Indian", "Italian", "Japanese", "Mexican", "Turkish"),
+#    index=None,
+#    placeholder="Select your desired cuisine."
+#)
+#
+#allergy = st.text_input(
+#    "Enter your food allergy:  \n\n", key="allergy", value="peanuts"
+#)
+#
+#ingredient_1 = st.text_input(
+#    "Enter your first ingredient:  \n\n", key="ingredient_1", value="ahi tuna"
+#)
 
 
 max_output_tokens = 2048
@@ -139,11 +139,10 @@ config = {
     "max_output_tokens": 2048,
 }
 
-generate_t2t = st.button("Generate my recipes.", key="generate_t2t")
+generate_t2t = st.button("Brief schreiben.", key="generate_t2t")
 if generate_t2t and prompt:
-    # st.write(prompt)
-    with st.spinner("Generating your recipes using Gemini..."):
-        first_tab1, first_tab2 = st.tabs(["Recipes", "Prompt"])
+    with st.spinner("Generating your doctor's letter using Gemini..."):
+        first_tab1, first_tab2 = st.tabs(["Result", "Prompt"])
         with first_tab1:
             response = get_gemini_pro_text_response(
                 text_model_pro,
